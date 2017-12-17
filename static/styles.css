@@ -1,3 +1,14 @@
+body {
+  font-family: "Helvetica Neue", Helvetica, Arial;
+  font-size: 14px;
+  line-height: 20px;
+  font-weight: 400;
+  color: #ffffff;
+  -webkit-font-smoothing: antialiased;
+  font-smoothing: antialiased;
+  background: #2b2b2b;
+}
+
 .highlight-red {
     background-color: red;
 }
@@ -11,4 +22,16 @@ td {
     -webkit-transition: 1s linear all;
     transition: 1s linear all;
     background-color: clear;
+}
+
+.table {
+  margin: 0 0 40px 0;
+  width: 600px;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.2);
+  display: table;
+}
+.column-cell{
+  padding: 6px 12px;
+  display: table-cell;
+  width: 100px;
 }

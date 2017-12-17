@@ -1,140 +1,63 @@
+//Assumpution:  1.  The random number range from 1 ~ 100
+//              2.  If number is larger than or equal to 80, the color of the number will change to red
+//              3.  If number is smaller than or equal to 20, the color of the number will change to green
+//              4.  The rendering speed in the UI is 2000 ms, i.e. render every 2000 ms
+
 (function () {
 'use strict'
 var NUM_RANDOM = 50;
-//var NUM_MAX_VALUE = 100;
-//var NUM_MIN_VALUE = 1;
 var THRESHOLD_UP = 80;
 var THRESHOLD_DOWN = 20;
+var UI_RENDERING_SPEED = 2000;
 var TD_CLASSES = ['highlight-red', 'highlight-green','highlight-transparent'];
-
-//var app = angular.module("app", ['ui.router']);
-//angular.module('app',['ui.router']);
-//angular.module('app')
-//.config(RoutesConfig);
-//
-//
-//RoutesConfig.$inject = ['$stateProvider', '$urlRouterProvider'];
-//function RoutesConfig($stateProvider, $urlRouterProvider ) {
-//
-//  // Redirect to tab 1 if no other URL matches
-//  $urlRouterProvider.otherwise('random/tab1');
-//
-//  // Set up UI states
-//  $stateProvider
-//    .state('tab1', {
-//      url: 'tab1',
-//      templateUrl: 'tab1'
-//    })
-//
-//    .state('tab2', {
-//      url: 'tab2',
-//      templateUrl: 'tab2'
-//    });
-//}
 
 angular.module("app", [])
 
+//Controller
 angular.module('app')
 .controller("appcontrol", function ($scope, $timeout, $interval, $http) {
-//.controller("appcontrol", function ($scope, $timeout, $interval) {
-//    $scope.stop = false;
-    //$scope.server_speed = 500;
-    //$scope.current_server_speed = $scope.server_speed;
-    $scope.numbers = new Array();
-    for (var i = 0; i < NUM_RANDOM; i++) {
-        $scope.numbers[i] = 0;
-    };
-    $scope.numbers_clone=$scope.numbers.slice(0) ;
-    $scope.numberRange = function(min, max) {
+    self = this;
+
+    //initialize variables
+    $scope.numbers = initArray(NUM_RANDOM);
+    $scope.numbers_clone = $scope.numbers.slice(0);
+
+    //initialize actions
+    setRenderingSpeed($scope, $interval)
+    connectRandomServer($scope);
+    getCurrentServerSpeedGeneratingNumber($scope, $http)
+
+    //*************************************************************
+    //function for get the slice of number specified by the parameer
+    //@start - start index
+    //@end - end index
+    //*************************************************************
+    $scope.numberRange = function(start, end) {
       var items = [];
-      for (var i = min; i < max; i++) {
+      for (var i = start; i < end; i++) {
           items.push($scope.numbers[i]);
       }
       return items;
     };
 
-    var var_1=$interval(function(){
-        $scope.numbers = $scope.numbers_clone
-    },2000);
-
-    var socket = io.connect('http://' +document.domain + ":" +location.port + '/random');
-
-    socket.on('connect', function(){
-        console.log('connected');
-        socket.emit('startnewnumber', {})
-    });
-
-
-    socket.on('newnumber', function(msg){
-        console.log("number:" + msg);
-         $scope.numbers_clone.unshift(msg)
-         $scope.numbers_clone.pop()
-    });
-
-    //get current seed
-    $http({
-        method: 'GET',
-        url: 'http://' +document.domain + ":" +location.port + '/get_server_speed'
-    }).success(function (data, status, headers, config) {
-        $scope.server_speed = data;
-        $scope.current_server_speed = data
-    });
-
-     // function to submit the form after all validation has occurred
-    $scope.submitForm = function () {
-        console.log("server_speed : " + $scope.server_speed)
+    //*************************************************************
+    // function to set the Server Speed
+    //*************************************************************
+    $scope.changeServerSpeed = function () {
+        console.log("server_interval : " + $scope.server_interval)
         $http({
             method: 'GET',
-            url: 'http://' +document.domain + ":" +location.port + '/server_speed',
+            url: getURLString('/set_server_interval'),
             params: {
-                new_speed: $scope.server_speed
+                new_interval: $scope.server_interval
             }
         }).success(function (data, status, headers, config) {
-            $scope.current_server_speed = data
+            $scope.current_server_interval = data
         });
-//        console.log('Stackoverflow JS func caled');
-//        var regData = {
-//            "email": user.email,
-//            "password": user.password1
-//        };
-//
-//        var jsonData = JSON.stringify(regData);
-//        var request = $.ajax({
-//            url: 'myurl',
-//            type: 'POST',
-//            data: jsonData,
-//            headers: {
-//                'Accept': 'application/json',
-//                'Content-Type': 'application/json'
-//            },
-//            dataType: 'json',
-//            complete: function (response) {
-//                console.log(response.responseText);
-//                if (response.responseText == 'success') {
-//                    console.log('Registration Success');
-//                    alert('Success');
-//                    $scope.msgalert = 'Registration Success, Proceed to Login and Continue';
-//                } else if (response.responseText == 'fail') {
-//                    alert('registration failed');
-//                    $scope.msgalert = 'Registration Failed, Please try again';
-//                }
-//            }
-//        });
     };
-
-
-//    var poll = function () {
-//        if ($scope.stop) return;
-//
-//        //simulate stock values rising and falling
-//        for (var i = 0; i < NUM_RANDOM; i++) {
-//            $scope.numbers[i] = getRandomInt(NUM_MIN_VALUE, NUM_MAX_VALUE);
-//        }
-//        $timeout(poll, 2500);
-//    };
-//    poll();
 });
 
+//Directive
 angular.module('app').directive('highlighter', function ($timeout) {
     return {
         restrict: 'A',
@@ -156,13 +79,47 @@ angular.module('app').directive('highlighter', function ($timeout) {
     };
 });
 
+function getCurrentServerSpeedGeneratingNumber($scope, $http){
+    $http({
+        method: 'GET',
+        url: getURLString('/get_server_interval')
+    }).success(function (data, status, headers, config) {
+        $scope.server_interval= Number(data);
+        $scope.current_server_interval= Number(data);
+    });
+}
 
+function getURLString(uri){
+    return 'http://' +document.domain + ":" +location.port + uri;
+}
 
+function setRenderingSpeed($scope, $interval){
+    var var_1=$interval(function(){
+        $scope.numbers = $scope.numbers_clone;
+    },UI_RENDERING_SPEED);
+}
 
+function connectRandomServer($scope){
+    //var socket = io.connect('http://' +document.domain + ":" +location.port + '/random');
+    var socket = io.connect(getURLString('/random'));
+    socket.on('connect', function(){
+        console.log('connected');
+        socket.emit('startnewnumber', {})
+    });
 
-//function getRandomInt(min, max) {
-//    return Math.floor(Math.random() * (max - min + 1)) + min;
-//}
+    socket.on('newnumber', function(msg){
+         $scope.numbers_clone.unshift(msg)
+         $scope.numbers_clone.pop()
+    });
+}
+
+function initArray(number){
+    var arr = new Array()
+    for (var i = 0; i < number; i++) {
+        arr[i] = 0;
+    };
+    return arr
+}
 
 function removeHighlightClass(element){
   for (var i = 0; i < TD_CLASSES.length; i++) {

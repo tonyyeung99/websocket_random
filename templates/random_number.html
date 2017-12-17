@@ -11,47 +11,44 @@
     <title>Random Number Viewer</title>
   </head>
   <body>
-    <ui-view></ui-view>
     <h1>Random Number Viewer</h1>
     <div ng-app="app" ng-controller="appcontrol">
         <table class="table table-condensed">
             <tbody>
                 <tr class="list" >
-                    <td>last 1~10 </td>
+                    <td class="column-cell">last 1~10 </td>
                     <td highlighter="number" ng-repeat="number in numberRange(0,10) track by $index"> {{ '{{number}}' }}</td>
                 </tr>
                 <tr class="list" >
-                    <td>last 11~20 </td>
+                    <td class="column-cell">last 11~20 </td>
                     <td highlighter="number" ng-repeat="number in numberRange(10,20) track by $index"> {{ '{{number}}' }}</td>
                 </tr>
                 <tr class="list" >
-                    <td>last 21~30 </td>
+                    <td class="column-cell">last 21~30 </td>
                     <td highlighter="number" ng-repeat="number in numberRange(20,30) track by $index">{{ '{{number}}' }}</td>
                 </tr>
                 <tr class="list" >
-                    <td>last 31~40 </td>
+                    <td class="column-cell">last 31~40 </td>
                     <td highlighter="number" ng-repeat="number in numberRange(30,40) track by $index">{{ '{{number}}' }}</td>
                 </tr>
                 <tr class="list" >
-                    <td>last 41~50 </td>
+                    <td class="column-cell">last 41~50 </td>
                     <td highlighter="number" ng-repeat="number in numberRange(40,50) track by $index">{{ '{{number}}' }}</td>
                 </tr>
             </tbody>
         </table>
 
-           <form name="userForm" ng-submit="submitForm(server_speed)" novalidate>
-                <div>Change Server Speed (in ms):</div>
-                <input type="text"  size="10"  name="server_speed" ng-model="server_speed">
-                <button type="submit" class="btn btn-primary" ng-disabled="userForm.$invalid" ng-click="showme=true">
+           <form name="userForm" ng-submit="changeServerSpeed(server_interval)" novalidate>
+                <div>Change Server Generation Interval(in ms):
+                <input type="number"  size="10"  name="server_interval" ng-model="server_interval" required>
+                <button type="submit" class="btn btn-primary" ng-click="showme=true">
                     Set
                 </button>
+                </div>
             </form>
-            <div > Current Server Speed = {{ '{{current_server_speed}}' }}</div>
-        <!--
-        <input type="button" value="poll on/off" ng-click="stop = !stop" />
-        <div ng-show="stop">Polling off</div>
-        <div ng-show="!stop">Polling on</div>
-        -->
+            <div > Current Server Generation Interval (in ms) = {{ '{{current_server_interval}}' }}</div>
+            <div > Current Server Generation Interval (in ms) = {{ '{{current_server_interval}}' }}</div>
+
     </div>
   </body>
 </html>
