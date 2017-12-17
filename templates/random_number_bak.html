@@ -38,15 +38,6 @@
                 </tr>
             </tbody>
         </table>
-
-           <form name="userForm" ng-submit="submitForm(server_speed)" novalidate>
-                <div>Change Server Speed (in ms):</div>
-                <input type="text"  size="10"  name="server_speed" ng-model="server_speed">
-                <button type="submit" class="btn btn-primary" ng-disabled="userForm.$invalid" ng-click="showme=true">
-                    Set
-                </button>
-            </form>
-            <div > Current Server Speed = {{ '{{current_server_speed}}' }}</div>
         <!--
         <input type="button" value="poll on/off" ng-click="stop = !stop" />
         <div ng-show="stop">Polling off</div>
